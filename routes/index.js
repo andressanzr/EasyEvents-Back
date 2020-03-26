@@ -6,6 +6,7 @@ var mongoose = require("mongoose");
 const EventModel = require("../models/EventModel");
 const UserModel = require("../models/UserModel");
 
+const bcrypt = require("bcrypt");
 /* GET home page. */
 router.get("/", function(req, res, next) {
   /*
@@ -28,6 +29,21 @@ router.get("/", function(req, res, next) {
     console.log(err);
   });
   */
+
+  // brcypt const
+  const saltRounds = 10;
+  var plainPass = "halloleute10";
+
+  /*
+  
+  bcrypt.compare(
+    plainPass,
+    "$2b$15$2dL5a5X5DmaCixbksib5qunNeiF4KWYHKROjMfzhr25cD6zmR.3JK",
+    (err, res) => {
+      err ? console.log(err) : console.log(res);
+    }
+  );
+*/
   res.send("Grüezi");
 });
 

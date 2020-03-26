@@ -3,6 +3,7 @@ var express = require("express");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 
+var fileUpload = require("express-fileupload");
 var cors = require("cors");
 require("dotenv").config();
 
@@ -24,6 +25,7 @@ mongoose.connect(
 
 var app = express();
 
+app.use(fileUpload({ useTempFiles: true }));
 app.use(cors());
 app.options("*", cors());
 app.use(logger("dev"));
