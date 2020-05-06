@@ -10,7 +10,7 @@ var cloudinary = require("cloudinary").v2;
 cloudinary.config({
   cloud_name: "dgvz9lg1o",
   api_key: "937868953514572",
-  api_secret: "t7MmKYX16E3eiUBz4o0_sPd_upE"
+  api_secret: "t7MmKYX16E3eiUBz4o0_sPd_upE",
 });
 
 const UserSchema = new Schema({
@@ -20,7 +20,7 @@ const UserSchema = new Schema({
   password: { type: String, required: true },
   phonePrefix: { type: Number, required: true },
   phone: { type: Number, required: true },
-  photoRoute: { type: String, required: false }
+  photoRoute: { type: String, required: false },
 });
 
 const UserModel = mongoose.model("User", UserSchema);
@@ -34,68 +34,79 @@ module.exports = {
     phone,
     photoRoute
   ) => {
-    // hash pass
-    bcrypt.genSalt(saltRounds, (err, salt) => {
-      err ? console.log(err) : console.log(salt);
-      bcrypt.hash(plainPassword, salt, (err, hash) => {
+    return new Promise((resolve, reject) => {
+      // hash pass
+      bcrypt.genSalt(saltRounds, (err, salt) => {
+        err ? console.log(err) : console.log(salt);
+        bcrypt.hash(plainPassword, salt, (err, hash) => {
+          if (err) {
+            console.log(err);
+          } else {
+            new UserModel({
+              name,
+              surname,
+              email,
+              password: hash,
+              phonePrefix,
+              phone,
+              photoRoute,
+            }).save((err, doc) => {
+              if (err) {
+                console.log(err);
+                reject(err);
+              } else {
+                console.log(doc);
+                resolve(doc);
+              }
+            });
+          }
+        });
+      });
+    });
+  },
+  uploadFile: (file) => {
+    return new Promise((resolve, reject) => {
+      console.log(file);
+      cloudinary.uploader.upload(
+        file.tempFilePath,
+        { folder: "userProfilePics" },
+        function (err, res) {
+          if (err) {
+            reject(err);
+          } else {
+            console.log(res);
+            // runs callback and passes the imgURL
+            resolve(res.secure_url);
+          }
+        }
+      );
+    });
+  },
+  checkEmailExists: (email) => {
+    return new Promise((resolve, reject) => {
+      UserModel.findOne({ email }, (err, doc) => {
         if (err) {
-          console.log(err);
+          reject(err);
         } else {
-          new UserModel({
-            name,
-            surname,
-            email,
-            password: hash,
-            phonePrefix,
-            phone,
-            photoRoute
-          }).save((err, doc) => {
-            if (err) {
-              console.log(err);
-              return err;
-            } else {
-              console.log(doc);
-              return doc;
-            }
-          });
+          doc === null ? resolve("email OK") : reject("email already exists");
         }
       });
     });
   },
-  uploadFile: (file, callbackFunct) => {
-    console.log(file);
-    var imgURL = "";
-    cloudinary.uploader.upload(
-      file.tempFilePath,
-      { folder: "userProfilePics" },
-      function(err, res) {
-        if (err) {
+  login: (email, password) => {
+    return new Promise((resolve, reject) => {
+      UserModel.findOne({ email: email })
+        .then((doc) => {
+          console.log(doc);
+          bcrypt.compare(password, doc.password, (err, res) => {
+            err ? reject("user not found") : "";
+            res ? resolve("user OK") : reject("user not found");
+          });
+        })
+        .catch((err) => {
           console.log(err);
-        } else {
-          console.log(res);
-          imgURL = res.secure_url;
-        }
-        // runs callback and passes the imgURL
-        if (typeof callbackFunct == "function") {
-          return callbackFunct(imgURL);
-        }
-      }
-    );
-  },
-  checkEmailExists: (email, callbackFunct) => {
-    UserModel.findOne({ email }, (err, doc) => {
-      var result;
-      if (err) {
-        console.log(err);
-      } else {
-        result = doc === null ? false : true;
-      }
-      if (typeof callbackFunct === "function") {
-        callbackFunct(result);
-      }
+          reject(err);
+        });
     });
   },
-  login: (email, password) => {
-    UserModel.findOne({ email: email, password: password });
-  }
 };
