@@ -37,5 +37,32 @@ router.get("/:publicId", (req, res) => {
       res.end(createResponseMsg("error", err));
     });
 });
-
+router.post("/update", (req, res, next) => {
+  var publicIdCode = req.body.publicIdCode;
+  var type = req.body.type;
+  var name = req.body.name;
+  var message = req.body.message;
+  var date = req.body.date;
+  var time = req.body.time;
+  var place = req.body.place;
+  var guests = req.body.emailInvitees;
+  EventModel.updateEvent(
+    publicIdCode,
+    type,
+    name,
+    message,
+    time,
+    date,
+    place,
+    guests
+  )
+    .then((resolve) => {
+      console.log(resolve);
+      res.end(createResponseMsg("success", resolve));
+    })
+    .catch((reject) => {
+      console.log(reject);
+      res.end(createResponseMsg("error", reject));
+    });
+});
 module.exports = router;
