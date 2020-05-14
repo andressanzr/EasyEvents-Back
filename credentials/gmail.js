@@ -1,4 +1,4 @@
 module.exports = {
   emailAddress: "easyevents2dam@gmail.com",
-  pass: "NodeMailer55",
+  pass: "123456789dam2",
 };

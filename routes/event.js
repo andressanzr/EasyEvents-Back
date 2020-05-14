@@ -15,9 +15,19 @@ router.post("/save", (req, res, next) => {
   var message = req.body.message;
   var date = req.body.date;
   var time = req.body.time;
+  var hostName = req.body.hostName;
   var place = req.body.place;
   var emailInvitees = req.body.emailInvitees;
-  EventModel.saveEvent(type, name, message, time, date, place, emailInvitees)
+  EventModel.saveEvent(
+    type,
+    name,
+    message,
+    time,
+    date,
+    place,
+    hostName,
+    emailInvitees
+  )
     .then((resolve) => {
       console.log(resolve);
       res.end(createResponseMsg("success", resolve));
@@ -29,13 +39,17 @@ router.post("/save", (req, res, next) => {
 });
 router.get("/:publicId", (req, res) => {
   var publicId = req.params.publicId;
-  EventModel.getEventInfo(publicId)
-    .then((resolve) => {
-      res.end(createResponseMsg("success", resolve));
-    })
-    .catch((err) => {
-      res.end(createResponseMsg("error", err));
-    });
+  if (publicId) {
+    EventModel.getEventInfo(publicId)
+      .then((resolve) => {
+        res.end(createResponseMsg("success", resolve));
+      })
+      .catch((err) => {
+        res.end(createResponseMsg("error", err));
+      });
+  } else {
+    res.end(createResponseMsg("error", "no results"));
+  }
 });
 router.post("/update", (req, res, next) => {
   var publicIdCode = req.body.publicIdCode;

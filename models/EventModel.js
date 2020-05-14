@@ -12,7 +12,8 @@ const EventSchema = new Schema({
           v === "cumpleanos" ||
           v === "boda" ||
           v === "despedidadSoltero" ||
-          v === "babyShower"
+          v === "babyShower" ||
+          v === "fiesta"
         )
           return true;
       },
@@ -24,12 +25,13 @@ const EventSchema = new Schema({
   date: { type: Date, required: true },
   dateCreated: { type: Date, required: true },
   place: { type: String, required: true },
+  hostName: { type: String, required: true },
   guestsEmails: { type: Array, required: false },
 });
 
 const EventModel = mongoose.model("Event", EventSchema);
 module.exports = {
-  saveEvent: (type, name, message, time, date, place, guests) => {
+  saveEvent: (type, name, message, time, date, place, hostName, guests) => {
     return new Promise(async (resolve, reject) => {
       var hours = new Date(time).getHours();
       var mins = new Date(time).getMinutes();
@@ -60,12 +62,25 @@ module.exports = {
                   date: dateNew,
                   dateCreated: new Date(),
                   place,
+                  hostName,
                   guestsEmails: guests,
                 })
                   .save()
                   .then((doc) => {
                     console.log(doc);
-                    // TODO Mandar emails contraseña gmail
+                    guests.map((email) => {
+                      EmailModel.sendEmail(
+                        email,
+                        "Invitación al evento " + name,
+                        `<h1>Has sido invitado al evento ${name} organizado por ${hostName} el dia ${new Date(
+                          date
+                        ).toString()} en ${place}</h1>
+                      <h2>El anfitrión ha enviado un mensaje</h2><p>"${message}"</p>
+                      <h5>Introduce el código ${publicIdCodeGen} en la web o app de EasyEvents para ver más detalles</h5>
+                      <h3>Evento creado con EasyEvents</h3>`
+                      );
+                    });
+                    EmailModel.sendEmail();
                     resolve(doc.publicIdCode);
                   })
                   .catch((err) => {
@@ -90,7 +105,7 @@ module.exports = {
           reject(err);
         } else {
           if (docs.length === 0) {
-            console.log("error");
+            console.log("error no results");
             reject("no results");
           } else {
             resolve(docs[0]);
@@ -128,7 +143,6 @@ module.exports = {
             console.log("error");
             reject(err);
           } else {
-            console.log(resultado);
             resolve(resultado);
           }
         }
