@@ -41,6 +41,7 @@ module.exports = {
       while (publicCodeOK === false) {
         var publicIdCodeGen = Math.round(Math.random() * 99999);
         console.log("cod" + publicIdCodeGen);
+        console.log("hostname " + hostName);
         // LA HORA SE GUARDA EN GMT +0
         await EventModel.find(
           { publicIdCode: publicIdCodeGen },
@@ -51,7 +52,6 @@ module.exports = {
               console.log(docs);
               console.log("len" + docs.length);
               if (docs.length === 0) {
-                console.log("test");
                 publicCodeOK = true;
                 // TODO Host und guests
                 new EventModel({
@@ -68,19 +68,20 @@ module.exports = {
                   .save()
                   .then((doc) => {
                     console.log(doc);
-                    guests.map((email) => {
-                      EmailModel.sendEmail(
-                        email,
-                        "Invitación al evento " + name,
-                        `<h1>Has sido invitado al evento ${name} organizado por ${hostName} el dia ${new Date(
-                          date
-                        ).toString()} en ${place}</h1>
+                    if (guests && guests.length > 0) {
+                      guests.map((email) => {
+                        EmailModel.sendEmail(
+                          email,
+                          "Invitación al evento " + name,
+                          `<h1>Has sido invitado al evento ${name} organizado por ${hostName}</h1>
+                          <h4>Fecha: ${new Date().toDateString()}</h4><h5>Lugar: ${place}</h5>
                       <h2>El anfitrión ha enviado un mensaje</h2><p>"${message}"</p>
                       <h5>Introduce el código ${publicIdCodeGen} en la web o app de EasyEvents para ver más detalles</h5>
                       <h3>Evento creado con EasyEvents</h3>`
-                      );
-                    });
-                    EmailModel.sendEmail();
+                        );
+                      });
+                      EmailModel.sendEmail();
+                    }
                     resolve(doc.publicIdCode);
                   })
                   .catch((err) => {

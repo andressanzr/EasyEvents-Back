@@ -4,7 +4,6 @@ var router = express.Router();
 var mongoose = require("mongoose");
 
 const EventModel = require("../models/EventModel");
-const UserModel = require("../models/UserModel");
 
 const bcrypt = require("bcrypt");
 /* GET home page. */

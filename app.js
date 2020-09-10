@@ -9,7 +9,6 @@ require("dotenv").config();
 
 var indexRouter = require("./routes/index");
 var eventRouter = require("./routes/event");
-var userRouter = require("./routes/user");
 
 var mongoose = require("mongoose");
 mongoose.set("useCreateIndex", true);
@@ -17,7 +16,7 @@ mongoose.set("useCreateIndex", true);
 mongoose.connect(
   process.env.db_connection,
   { useNewUrlParser: true, useUnifiedTopology: true },
-  err => {
+  (err) => {
     if (err) console.log("err db connect");
     else console.log("connected");
   }
@@ -35,15 +34,14 @@ app.use(cookieParser());
 
 app.use("/", indexRouter);
 app.use("/event", eventRouter);
-app.use("/user", userRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
