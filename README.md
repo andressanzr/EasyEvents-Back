@@ -1,4 +1,4 @@
-# Android App of EasyEvents
+# API EasyEvents
 
 EasyEvents is an App that can be used to easily create events and share the event info with the invitees via a unique Event Code.<br>
 <br>
